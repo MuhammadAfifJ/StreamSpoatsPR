@@ -1,0 +1,112 @@
+﻿@inject NavigationManager NavigationManager
+@using System.Threading;
+
+
+<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+
+    <div class="container">
+        @*<a class="navbar-brand" href="">blazornav</a>*@
+        <img src="/StreamSpoatsLogo.jpeg" height="50" />
+        <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+
+            <ul class="navbar-nav flex-grow-1">
+                <li class="nav-item">
+                    <NavLink class="nav-link text-dark" href="">
+                        <span class="oi oi-home" aria-hidden="true"></span> Home
+                    </NavLink>
+                </li>
+
+                <li class="nav-item">
+                    <NavLink class="nav-link text-dark" href="/Review/AllReview">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> All Reviews
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link text-dark" href="/sport/">
+                        <span class="oi oi-grid-two-up" aria-hidden="true"></span> Sports
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link text-dark" href="/ItmeType/">
+                        <span class="oi oi-grid-two-up" aria-hidden="true"></span> Type
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link text-dark" href="/brand/">
+                        <span class="oi oi-grid-three-up" aria-hidden="true"></span> Brands
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link text-dark" href="/review/">
+                        <span class="oi oi-pencil" aria-hidden="true"></span> Write a review
+                    </NavLink>
+                </li>
+                <AuthorizeView>
+                    <Authorized>
+                        @*<p style="margin-top: 12px; padding-right: 10px;"> @context.User.Identity.Name!</p>
+                        <a href="LogOut" style="margin-top:12px">Log out</a>*@
+                        <li class="nav-item">
+                            <NavLink class="nav-link text-dark" href="Account">
+                                <span class="oi oi-pencil" aria-hidden="true"></span> Account
+                            </NavLink>
+                        </li>
+                    </Authorized>
+                    <NotAuthorized>
+                        <li class="nav-item">
+                            <NavLink class="nav-link text-dark" href="Login">
+                                <span class="oi oi-pencil" aria-hidden="true"></span> Account
+                            </NavLink>
+                        </li>
+                        @*<a href="Register" style="padding-right: 10px; margin-top: 12px">Register</a>
+                        <a href="Login" style="padding-right: 10px; margin-top: 12px">Log in</a>*@
+                    </NotAuthorized>
+                </AuthorizeView>
+               
+                @*<LoginDisplay />*@
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+@*<div class="top-row pl-4 navbar navbar-dark">
+        <a class="navbar-brand" href="">StreamSpoatsPR</a>
+        <button class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+
+    <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+        <ul class="nav flex-column">
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="oi oi-home" aria-hidden="true"></span> Home
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="counter">
+                    <span class="oi oi-plus" aria-hidden="true"></span> Counter
+                </NavLink>
+            </li>
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="fetchdata">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+                </NavLink>
+            </li>
+        </ul>
+    </div>*@
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

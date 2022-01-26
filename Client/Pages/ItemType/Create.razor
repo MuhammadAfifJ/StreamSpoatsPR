@@ -1,0 +1,19 @@
+﻿@page "/ItmeType/create/"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+<h3 class="card-title">Create New Item Type</h3>
+<hr />
+<br />
+
+<FormComponent ButtonText="Create Item Type" type="type" OnValidSubmit="@CreateType" />
+
+@code {
+    StreamSpoatsPR.Shared.Type type = new StreamSpoatsPR.Shared.Type();
+
+    private async Task CreateType()
+    {
+        await _client.PostAsJsonAsync(Endpoints.TypeEndpoint, type);
+        _navManager.NavigateTo("/ItmeType/");
+    }
+}

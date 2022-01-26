@@ -1,0 +1,285 @@
+﻿@page "/Review/edit/{ProductId:int}"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+@using System
+@using System.IO
+@using System.Text.Json;
+@using System.Text;
+@inject IJSRuntime JsRuntime
+<h3 class="card-title">Update Review</h3>
+<hr />
+<br />
+
+<EditForm Model="Review" OnValidSubmit="@EditReview">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label>Product Name:</label>
+                    <input type="text" class="form-control my-input" @bind="Review.ProductName" required placeholder="Product Name">
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label>Image:</label>
+                    <InputFile OnChange="@OnFileSelection" multiple></InputFile>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <img src="/Data/@imageName" width="50" height="50"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>Review:</label>
+                    <textarea type="text" @bind="Review.ReviewDetails" required class="form-control my-input"></textarea>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label>Rating:</label>                   
+                    <select class="form-control" @bind="@ReviewRating">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label>Item Type:</label>
+                    @if (TypeList == null)
+                    {
+                        <p><em>Loading...</em></p>
+                    }
+                    else
+                    {
+                        <select class="form-control" @bind="@ItemType">
+                            @foreach (var n in TypeList)
+                            {
+                                <option value="@n.ID">@n.ItemType</option>
+                            }
+                        </select>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Item Serial:</label>
+                    <input type="text" class="form-control my-input" @bind="Review.ItemSerial" required disabled/>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Date of Purchase:</label>
+                    <input type="date" @bind="Review.ReviewDateTime" class="form-control my-input" required />
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Sport:</label>
+                    @if (SportList == null)
+                    {
+                        <p><em>Loading...</em></p>
+                    }
+                    else
+                    {
+                        <select class="form-control" @bind="@SportName">
+                            @foreach (var n in SportList)
+                            {
+                                <option value="@n.ID">@n.SportName</option>
+                            }
+                        </select>
+                    }
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Brand:</label>
+                    @if (BrandList == null)
+                    {
+                        <p><em>Loading...</em></p>
+                    }
+                    else
+                    {
+                        <select class="form-control" @bind="@BrandName">
+                            @foreach (var n in BrandList)
+                            {
+                                <option value="@n.ID">@n.Name</option>
+                            }
+                        </select>
+                    }
+
+
+
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-3">
+
+            </div>
+            <div class="col-sm-3">
+
+            </div>
+            <div class="col-sm-3">
+
+            </div>
+            <div class="col-sm-3">
+                <button type="submit" class="form-control btn btn-primary"> <span class="oi oi-cloud-upload" aria-hidden="true"></span> Publish</button>
+            </div>
+
+        </div>
+
+    </div>
+
+</EditForm>
+
+@code {
+
+
+
+
+    [Parameter] public int ProductId { get; set; }
+    IReadOnlyList<IBrowserFile> selectedFiles;
+    string ReviewRating = "-1";
+    int SportName = 0;
+    int ItemType = 0;
+    int BrandName = 0;
+    private ReviewWriteViewModel Review = new ReviewWriteViewModel();
+    private Brand[] BrandList;
+    private Sport[] SportList;
+    private StreamSpoatsPR.Shared.Type[] TypeList;
+    private string imageName;
+    private Product ProductById = new Product();
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        BrandList = await _client.GetFromJsonAsync<Brand[]>($"{Endpoints.BrandEndpoint}");
+        SportList = await _client.GetFromJsonAsync<Sport[]>($"{Endpoints.SportEndpoint}");
+        TypeList = await _client.GetFromJsonAsync<StreamSpoatsPR.Shared.Type[]>($"{Endpoints.TypeEndpoint}");
+        ProductById = await _client.GetFromJsonAsync<Product>($"{Endpoints.ProductEndpoint}/{ProductId}");
+        if(ProductById!=null)
+        {
+            Review.ProductName = ProductById.ProductName;
+            Review.ReviewDetails = ProductById.Purchase.Review.ReviewDetails;
+            ReviewRating = ProductById.Purchase.Review.ReviewRating;
+            ItemType = ProductById.Type.ID;
+            Review.ItemSerial = ProductById.ItemSerial;
+            Review.ReviewDateTime = ProductById.Purchase.PurchaseDate;
+            BrandName = ProductById.Brand.ID;
+            SportName = ProductById.Sport.ID;
+            imageName = ProductById.ProductImage;
+            Review.ReviewId = ProductById.Purchase.ReviewId;
+            Review.ProductId = ProductById.ProductId;
+
+        }
+    }
+
+
+
+    StreamSpoatsPR.Shared.Type type = new StreamSpoatsPR.Shared.Type();
+    protected async void EditReview()
+    {
+        try
+        {
+            var authState = await authenticationStateTask;
+            var user = authState.User;
+            if (user.Identity.IsAuthenticated)
+            {
+                Review r = new Review();
+                r.ReviewId = Review.ReviewId;
+                r.ReviewDetails = Review.ReviewDetails;
+                r.ReviewDateTime = System.DateTime.Now;
+                r.UserId = user.Identity.Name;
+                r.ReviewRating = ReviewRating;
+                var ReviewAsJson = JsonSerializer.Serialize(r);
+                var response = await _client.PutAsync($"{Endpoints.ReviewEndpoint}/{r.ReviewId}", new StringContent(ReviewAsJson, Encoding.UTF8, "application/json"));
+                var GetReview = JsonSerializer.Deserialize<Review>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                //await JsRuntime.InvokeVoidAsync("alert", GetReview.ReviewId); // Alert
+
+
+
+                Purchase purchase = new Purchase();
+                purchase.ReviewId = GetReview.ReviewId;
+                purchase.PurchaseDate = Review.ReviewDateTime;
+                purchase.ItemSerial = Review.ItemSerial;
+                var purchaseAsJson = JsonSerializer.Serialize(purchase);
+                var purchaseresponse = await _client.PutAsync($"{Endpoints.PurchaseEndpoint}/{purchase.ItemSerial}", new StringContent(purchaseAsJson, Encoding.UTF8, "application/json"));
+                var GetPurchase = JsonSerializer.Deserialize<Purchase>(await purchaseresponse.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                //upload image
+                if (fileData.Count > 0)
+                {
+                    var payload = new SaveFile { Files = fileData };
+                    var responseimage = await _client.PostAsJsonAsync("/api/Upload/save-file-to-physicallocation", payload);
+                    var ImageResult = await responseimage.Content.ReadFromJsonAsync<ImageResult>();
+                    imageName = ImageResult.name;
+                    //await JsRuntime.InvokeVoidAsync("alert", ImageResult.name);
+                    Console.WriteLine(response);
+                }
+
+                Product product = new Product();
+                product.ProductId = Review.ProductId;
+                product.ProductName = Review.ProductName;
+                product.ItemSerial = Review.ItemSerial;
+                product.SportName = SportName;
+                product.ItemType = ItemType;
+                product.BrandName = BrandName;
+                product.ProductImage = imageName;
+
+
+                var ProductAsJson = JsonSerializer.Serialize(product);
+                var Productresponse = await _client.PutAsync($"{Endpoints.ProductEndpoint}/{product.ProductId}", new StringContent(ProductAsJson, Encoding.UTF8, "application/json"));
+                //var GetProduct = JsonSerializer.Deserialize<Purchase>(await Productresponse.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                _navManager.NavigateTo("/Review/");
+            }
+            else
+            {
+                //await JsRuntime.InvokeVoidAsync("alert", "Please Login First"); // Alert
+
+            }
+        }
+        catch (Exception ex)
+        {
+            // await JsRuntime.InvokeVoidAsync("alert", "Something issue!"); // Alert
+        }
+
+    }
+
+    List<string> imgUrls = new List<string>();
+    List<FileData> fileData = new List<FileData>();
+
+    private async Task OnFileSelection(InputFileChangeEventArgs e)
+    {
+        imgUrls.Clear();
+        fileData.Clear();
+        foreach (IBrowserFile imgFile in e.GetMultipleFiles(5))
+        {
+            var buffers = new byte[imgFile.Size];
+            await imgFile.OpenReadStream().ReadAsync(buffers);
+            string imageType = imgFile.ContentType;
+            string imgUrl = $"data:{imageType};base64,{Convert.ToBase64String(buffers)}";
+            imgUrls.Add(imgUrl);
+            fileData.Add(new FileData
+            {
+                Data = buffers,
+                FileType = imageType,
+                Size = imgFile.Size
+            });
+        }
+    }
+}

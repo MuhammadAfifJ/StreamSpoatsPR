@@ -1,0 +1,49 @@
+﻿@using Type = StreamSpoatsPR.Shared.Type;
+
+<EditForm Model="@type" OnValidSubmit="@OnValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <fieldset disabled="@Disabled">
+        <div class="form-group">
+            <label>Item Type: </label>
+            <div>
+                <InputText @bind-Value="@type.ItemType" class="form-control" />
+                <ValidationMessage For="@(() => type.ItemType)" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Item Size: </label>
+            <div>
+                <InputText @bind-Value="@type.ItemSize" class="form-control" />
+                <ValidationMessage For="@(() => type.ItemSize)" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Item Color: </label>
+            <div>
+                <InputText @bind-Value="@type.ItemColor" class="form-control" />
+                <ValidationMessage For="@(() => type.ItemColor)" />
+            </div>
+        </div>
+    </fieldset>
+
+    @if (!Disabled)
+    {
+        <button type="submit" class="btn btn-success btn-block">
+            @ButtonText
+        </button>
+    }
+    <a class="btn btn-outline-dark btn-block" href="/brand/">
+        <span class="oi oi-arrow-left"></span>
+        Back To List
+    </a>
+    @*<BackToList Target="brand" />*@
+</EditForm>
+
+@code {
+    [Parameter] public bool Disabled { get; set; } = false;
+    [Parameter] public Type type { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Save";
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+}

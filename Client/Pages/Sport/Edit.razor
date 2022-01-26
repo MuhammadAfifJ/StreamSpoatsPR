@@ -1,0 +1,23 @@
+﻿@page "/sport/edit/{id:int}"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+<h3>Edit Colour</h3>
+
+<FormComponent ButtonText="Update" OnValidSubmit="EditSport" sport="sport" />
+
+@code {
+    [Parameter] public int id { get; set; }
+    Sport sport = new Sport();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        sport = await _client.GetFromJsonAsync<Sport>($"{Endpoints.SportEndpoint}/{id}");
+    }
+
+    async Task EditSport()
+    {
+        await _client.PutAsJsonAsync($"{Endpoints.SportEndpoint}/{id}", sport);
+        _navManager.NavigateTo("/sport/");
+    }
+}

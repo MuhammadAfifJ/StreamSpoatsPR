@@ -1,0 +1,11 @@
+﻿
+<AuthorizeView>
+    <Authorized>
+        <p style="margin-top: 12px; padding-right: 10px;"> @context.User.Identity.Name!</p>
+        <a href="LogOut" style="margin-top:12px">Log out</a>
+    </Authorized>
+    <NotAuthorized>
+        <a href="Register" style="padding-right: 10px; margin-top: 12px">Register</a>
+        <a href="Login" style="padding-right: 10px; margin-top: 12px">Log in</a>
+    </NotAuthorized>
+</AuthorizeView>

@@ -1,0 +1,91 @@
+﻿@page "/ItmeType/"
+@using StreamSpoatsPR.Shared
+@using Type = StreamSpoatsPR.Shared.Type;
+@inject HttpClient Http
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
+
+<h3 class="card-title">Types</h3>
+<br />
+
+<a href="/ItmeType/create" class="btn btn-secondary">
+    <span class="oi oi-plus"></span>
+    Create New Type
+</a>
+<br />
+<br />
+
+@if (type == null)
+{
+    <div class="alert alert-info">Loading Types...</div>
+}
+else
+{
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Item Type</th>
+                <th>Item Size</th>
+                <th>Item Color</th>
+                <th>Actions</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var n in type)
+            {
+                <tr>
+                    <td>@n.ID</td>
+                    <td>@n.ItemType</td>
+                     <td>@n.ItemSize</td>
+                     <td>@n.ItemColor</td>
+                    <td>
+                        @*<a href="/brand/view/@n.ID" class="btn btn-primary">
+                                <span class="oi oi-book"></span>
+                            </a>*@
+                        <a href="/itemType/edit/@n.ID" class="btn btn-warning">
+                            <span class="oi oi-pencil"></span>
+                        </a>
+                        <button class="btn btn-danger" @onclick="@(()=>Delete(n.ID))">
+                            <span class="oi oi-delete"></span>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Type[] type;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+        if (!user.Identity.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo($"Login", forceLoad: true);
+        }
+        else
+        {
+            Console.WriteLine("User is authenticated.");
+            type = await Http.GetFromJsonAsync<Type[]>($"{Endpoints.TypeEndpoint}");
+        }
+    }
+
+    async Task Delete(int typeId)
+    {
+        var TypeData = type.First(q => q.ID == typeId);
+        var confirm = await JsRuntime.InvokeAsync<bool>("confirm", $"Do you want to delete {TypeData.ID}?");
+        if (confirm)
+        {
+            await Http.DeleteAsync($"{Endpoints.TypeEndpoint}/{typeId}");
+            await OnInitializedAsync();
+        }
+    }
+
+}

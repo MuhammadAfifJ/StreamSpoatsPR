@@ -1,0 +1,99 @@
+﻿@page "/"
+
+@inject HttpClient _client
+@using StreamSpoatsPR.Shared
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
+
+
+
+ <div class="container">
+        <div class="jumbotron">
+            <h1>Top 5 Reviews</h1>
+            
+        </div>
+        <div class="row">
+            @if (ProductList != null)
+            {
+                <div class="col-md-12">
+                    @foreach (var n in ProductList)
+                    {
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="thumbnail">
+                                    <img src="/Data/@n.ProductImage" alt="Lights" style="width:100%;height:100px">
+                                    <div class="caption">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-wrap">
+                                <h4>@n.ProductName</h4>
+                                <p>@n.Purchase.Review.ReviewDetails</p>
+                                <br />
+                                <a style="color:gray;cursor:pointer"><span id="@n.ProductId"> @LikeList.Where(x => x.ProductId == n.ProductId).Count() Like</span> </a>
+
+                            </div>
+                            <div class="col-md-2">
+                               Sport: @n.Sport.SportName
+                                <br />
+                                <br />
+                                @n.Purchase.Review.ReviewDateTime.Value.ToShortDateString()
+                            </div>
+                            <div class="col-md-2">
+                               Type: @n.Type.ItemType
+
+                            </div>
+                            <div class="col-md-2">
+                               Name: @n.Brand.Name
+                                <br />
+                                <br />
+                                User: @n.Purchase.Review.UserId.Split('@')[0]
+                            </div>
+                        </div>
+
+                        <br />
+
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">Loading Review...</div>
+            }
+
+        </div>
+    </div>
+
+
+@code {
+    int ItemType = 0;
+    string ItemColor = "";
+    string ItemSize = "";
+    int BrandName = 0;
+    int SportName = 0;
+    private Like[] LikeList;
+    public string username = string.Empty;
+
+
+    private Product[] ProductList;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    protected override async Task OnInitializedAsync() // = On Page Load
+    {
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+        if (!user.Identity.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo($"Login", forceLoad: true);
+        }
+        else
+        {
+            Console.WriteLine("User is authenticated.");
+            username = user.Identity.Name;
+            LikeList = await _client.GetFromJsonAsync<Like[]>($"/api/Like/GetLikeList");
+            ProductList = await _client.GetFromJsonAsync<Product[]>($"/api/product/GetTopAsync");
+        }
+
+
+    }
+}

@@ -1,0 +1,19 @@
+﻿@page "/sport/create/"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+<h3 class="card-title">Create New Sport</h3>
+<hr />
+<br />
+
+<FormComponent ButtonText="Create Sport" sport="sport" OnValidSubmit="@Createbrand" />
+
+@code {
+    Sport sport = new Sport();
+
+    private async Task Createbrand()
+    {
+        await _client.PostAsJsonAsync(Endpoints.SportEndpoint, sport);
+        _navManager.NavigateTo("/sport/");
+    }
+}

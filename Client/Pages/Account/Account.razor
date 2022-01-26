@@ -1,0 +1,202 @@
+﻿@page "/Account"
+@inject HttpClient _client
+@using StreamSpoatsPR.Shared;
+@using StreamSpoatsPR.Client;
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
+
+<div class="container">
+
+    <div class="row">
+        <EditForm Model="@AccountUserUpdate" OnValidSubmit="@OnValidSubmit">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="thumbnail">
+                            <img src="/StreamSpoatsLogo.jpeg" alt="Lights" style="width:100%;height:200px">
+                            <div class="caption">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <InputText @bind-Value="@AccountUserUpdate.Name" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <InputText @bind-Value="@AccountUserUpdate.Email" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Phone:</label>
+                            <InputText @bind-Value="@AccountUserUpdate.Phone" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Bio:</label>
+                            <InputTextArea @bind-Value="@AccountUserUpdate.Bio" class="form-control" />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-success btn-block">
+                            Update
+                        </button>
+                    </div>
+
+                </div>
+               
+                <br />
+            </div>
+        </EditForm>
+
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <AuthorizeView>
+                            <Authorized>
+                                @if (ProductList != null)
+                                {
+                                    <label style="margin-top:12px">Reviews Written: @ProductList.Count()</label>
+                                }
+                            </Authorized>
+                        </AuthorizeView>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <NavLink class="nav-link text-dark" href="Login">
+                            <a href="LogOut" class="btn btn-info">Sign Out</a>
+                        </NavLink>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label style="margin-top:12px">Tier : @Tier</label>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="border:solid">
+                <div class="col-md-12">
+                    <div class="row">
+                        @if (ProductList != null)
+                        {
+                            <div class="col-md-12">
+                                @foreach (var n in ProductList)
+                                {
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <div class="thumbnail">
+                                                <img src="/Data/@n.ProductImage" alt="Lights" style="width:100%;height:100px">
+                                                <div class="caption">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 text-wrap">
+                                            <h4>@n.ProductName</h4>
+                                            <p>@n.Purchase.Review.ReviewDetails</p>
+                                            <br />
+
+                                            <a style="color:gray;cursor:pointer"><span id="@n.ProductId"> @LikeList.Where(x => x.ProductId == n.ProductId).Count() Like</span> </a>
+
+                                        </div>
+                                        <div class="col-md-2">
+                                            Sport: @n.Sport.SportName
+                                            <br />
+                                            <br />
+                                            @n.Purchase.Review.ReviewDateTime.Value.ToShortDateString()
+                                        </div>
+                                        <div class="col-md-2">
+                                            Type: @n.Type.ItemType
+
+                                        </div>
+                                        <div class="col-md-2">
+                                            Brand: @n.Brand.Name
+                                            <br />
+                                            <br />
+
+                                             @*@n.Purchase.Review.UserId.Split('@')[0]*@
+                                        </div>
+                                    </div>
+
+                                    <br />
+
+                                }
+                            </div>
+                        }
+                        
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+@code {
+    AccountUserUpdate AccountUserUpdate = new AccountUserUpdate();
+
+    public string username = string.Empty;
+
+    public string Tier = string.Empty;
+    private Product[] ProductList;
+    private Like[] LikeList;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    protected override async Task OnInitializedAsync() // = On Page Load
+    {
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+        if (!user.Identity.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo($"Login", forceLoad: true);
+        }
+        else
+        {
+            Console.WriteLine("User is authenticated.");
+            username = user.Identity.Name;
+            AccountUserUpdate.Email = username;
+            AccountUserUpdate = await _client.GetFromJsonAsync<AccountUserUpdate>($"/api/Accounts/GetUser?UserId={username}");
+            LikeList = await _client.GetFromJsonAsync<Like[]>($"/api/Like/GetLikeList");
+            ProductList = await _client.GetFromJsonAsync<Product[]>($"/api/product/GetProductByUserAsync?UserId={user.Identity.Name}");
+            if(ProductList.Count()<5)
+            {
+                Tier = "Novice";
+            }
+            if (ProductList.Count() > 5 && ProductList.Count() < 50)
+            {
+                Tier = "Amateur";
+            }
+            if (ProductList.Count() > 50 && ProductList.Count() < 100)
+            {
+                Tier = "Veteran";
+            }
+            if (ProductList.Count() > 80)
+            {
+                Tier = "Specialist";
+            }
+
+            this.StateHasChanged();
+        }
+
+
+    }
+
+    private async Task OnValidSubmit()
+    {
+        await _client.PostAsJsonAsync($"/api/Accounts/UpdateUser", AccountUserUpdate);
+        await OnInitializedAsync();
+    }
+}

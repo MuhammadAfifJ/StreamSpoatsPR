@@ -1,0 +1,215 @@
+﻿@page "/Review/AllReview"
+@inject HttpClient _client
+
+@using System
+@using System.IO
+@using System.Text.Json;
+@using System.Text;
+@using StreamSpoatsPR.Shared
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
+
+
+
+<div class="container">
+    <div class="jumbotron">
+        <h1>All Reviews</h1>
+
+    </div>
+    <div class="row">
+        @if (ProductList != null)
+        {
+            <div class="col-md-10">
+                @foreach (var n in ProductList)
+                {
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="thumbnail">
+                                <img src="/Data/@n.ProductImage" alt="No Image" style="width:100%;height:100px">
+                                <div class="caption">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-wrap">
+                            <h4>@n.ProductName</h4>
+                            <p>@n.Purchase.Review.ReviewDetails</p>
+                            <br />
+                          
+                            <a style="color:gray;cursor:pointer"  @onclick="@(()=>Add(n.ProductId))"><span id="@n.ProductId"> @LikeList.Where(x => x.ProductId == n.ProductId).Count() Like</span> </a>
+
+                        </div>
+                        <div class="col-md-2">
+                            Sport: @n.Sport.SportName
+                            <br />
+                            <br />
+                            D-o-P: @n.Purchase.Review.ReviewDateTime.Value.ToShortDateString()
+                        </div>
+                        <div class="col-md-2">
+                           Type: @n.Type.ItemType
+
+                        </div>
+                        <div class="col-md-2">
+                           Brand: @n.Brand.Name
+                            <br />
+                            <br />
+
+                           User: @n.Purchase.Review.UserId.Split('@')[0]
+                        </div>
+                    </div>
+
+                    <br />
+
+                }
+            </div>
+        }
+        <div class="col-md-2">
+            <div class="form-group" style="margin-bottom:0">
+                <label>Type:</label>
+                @if (TypeList == null)
+                {
+                    <p><em>Loading...</em></p>
+                }
+                else
+                {
+                    <select class="" style="width:150px" @onchange="OnItemType">
+                        <option value="0" selected>All</option>
+                        @foreach (var n in TypeList)
+                        {
+                            <option value="@n.ID">@n.ItemType</option>
+                        }
+                    </select>
+                }
+            </div>
+           
+            <div class="form-group" style="margin-bottom:0">
+                <label>Brand:</label>
+                @if (BrandList == null)
+                {
+                    <p><em>Loading...</em></p>
+                }
+                else
+                {
+                    <select class="" style="width:150px" @onchange="OnBrandList">
+                        <option value="0" selected>All</option>
+                        @foreach (var n in BrandList)
+                        {
+                            <option value="@n.ID">@n.Name</option>
+                        }
+                    </select>
+                }
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+                <label>Sport:</label>
+                @if (SportList == null)
+                {
+                    <p><em>Loading...</em></p>
+                }
+                else
+                {
+                    <select class="" style="width:150px" @onchange="OnSportList">
+                        <option value="0" selected>All</option>
+                        @foreach (var n in SportList)
+                        {
+                            <option value="@n.ID">@n.SportName</option>
+                        }
+                    </select>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    int ItemType = 0;
+    int BrandName = 0;
+    int SportName = 0;
+
+    private Brand[] BrandList;
+    private Sport[] SportList;
+    private StreamSpoatsPR.Shared.Type[] TypeList;
+    private Product[] ProductList;
+    private Like[] LikeList;
+    public string username = string.Empty;
+
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    protected override async Task OnInitializedAsync() // = On Page Load
+    {
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+        if (!user.Identity.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo($"Login", forceLoad: true);
+        }
+        else
+        {
+            username = user.Identity.Name;
+            LikeList = await _client.GetFromJsonAsync<Like[]>($"/api/Like/GetLikeList");
+            ProductList = await _client.GetFromJsonAsync<Product[]>($"{Endpoints.ProductEndpoint}");
+            BrandList = await _client.GetFromJsonAsync<Brand[]>($"{Endpoints.BrandEndpoint}");
+            SportList = await _client.GetFromJsonAsync<Sport[]>($"{Endpoints.SportEndpoint}");
+            TypeList = await _client.GetFromJsonAsync<StreamSpoatsPR.Shared.Type[]>($"{Endpoints.TypeEndpoint}");
+        }
+
+    }
+
+    async Task Add(int ProductId)
+    {
+        Console.WriteLine(ProductId);
+        if (!LikeList.Any(x => x.ProductId == ProductId && x.UserId == username))
+        {
+            //await JsRuntime.InvokeVoidAsync("alert", ProductId);
+            Like like = new Like();
+            like.ProductId = ProductId;
+            like.UserId = username;
+            var ReviewAsJson = JsonSerializer.Serialize(like);
+            var response = await _client.PostAsync(Endpoints.LikeEndpoint, new StringContent(ReviewAsJson, Encoding.UTF8, "application/json"));
+            var GetReview = JsonSerializer.Deserialize<Like>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            LikeList = await _client.GetFromJsonAsync<Like[]>($"/api/Like/GetLikeList");
+            this.StateHasChanged();
+        }
+        else {
+            await JsRuntime.InvokeVoidAsync("alert", "You already like this review");
+        }
+
+        //await JsRuntime.InvokeVoidAsync("alert", GetReview.ReviewId); // Alert
+    }
+
+    async Task  AddLike(int ProductId)
+    {
+        await JsRuntime.InvokeVoidAsync("aa", "aaa");
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+        Like like = new Like();
+        like.ProductId = ProductId;
+        like.UserId = user.Identity.Name;
+        var ReviewAsJson = JsonSerializer.Serialize(like);
+        var response = await _client.PostAsync(Endpoints.LikeEndpoint, new StringContent(ReviewAsJson, Encoding.UTF8, "application/json"));
+        var GetReview = JsonSerializer.Deserialize<Review>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        //await JsRuntime.InvokeVoidAsync("alert", GetReview.ReviewId); // Alert
+    }
+
+
+    async void OnItemType(ChangeEventArgs e)
+    {
+        ItemType = Convert.ToInt32(e.Value.ToString());
+        ProductList = await _client.GetFromJsonAsync<Product[]>($"/api/product/GetProductByConditionAsync?ItemType={ItemType}&BrandName={BrandName}&SportName={SportName}");
+        //ProductList = await ProductService.GetWhere(ItemType, ItemColor, ItemSize, BrandName, SportName);
+        this.StateHasChanged();
+    }
+   
+    async void OnBrandList(ChangeEventArgs e)
+    {
+        BrandName = Convert.ToInt32(e.Value.ToString());
+        ProductList = await _client.GetFromJsonAsync<Product[]>($"/api/product/GetProductByConditionAsync?ItemType={ItemType}&BrandName={BrandName}&SportName={SportName}");
+        this.StateHasChanged();
+    }
+    async void OnSportList(ChangeEventArgs e)
+    {
+        SportName = Convert.ToInt32(e.Value.ToString());
+        ProductList = await _client.GetFromJsonAsync<Product[]>($"/api/product/GetProductByConditionAsync?ItemType={ItemType}&BrandName={BrandName}&SportName={SportName}");
+        this.StateHasChanged();
+    }
+
+}
