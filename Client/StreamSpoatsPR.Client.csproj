@@ -21,4 +21,10 @@
     <Folder Include="wwwroot\Data\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\StreamSpoatsLogo.jpeg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

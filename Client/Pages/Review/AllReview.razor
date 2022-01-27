@@ -12,7 +12,7 @@
 
 
 <div class="container">
-    <div class="jumbotron">
+    <div class="jumbotron" style="background-color:cornflowerblue">
         <h1>All Reviews</h1>
 
     </div>
@@ -22,40 +22,42 @@
             <div class="col-md-10">
                 @foreach (var n in ProductList)
                 {
-                    <div class="row">
-                        <div class="col-md-2">
-                            <div class="thumbnail">
-                                <img src="/Data/@n.ProductImage" alt="No Image" style="width:100%;height:100px">
-                                <div class="caption">
-                                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="thumbnail">
+                            <img src="/Data/@n.ProductImage" alt="No Image" style="width:100%;height:100px">
+                            <div class="caption">
                             </div>
                         </div>
-                        <div class="col-md-4 text-wrap">
-                            <h4>@n.ProductName</h4>
-                            <p>@n.Purchase.Review.ReviewDetails</p>
-                            <br />
-                          
-                            <a style="color:gray;cursor:pointer"  @onclick="@(()=>Add(n.ProductId))"><span id="@n.ProductId"> @LikeList.Where(x => x.ProductId == n.ProductId).Count() Like</span> </a>
-
-                        </div>
-                        <div class="col-md-2">
-                            Sport: @n.Sport.SportName
-                            <br />
-                            <br />
-                            D-o-P: @n.Purchase.Review.ReviewDateTime.Value.ToShortDateString()
-                        </div>
-                        <div class="col-md-2">
-                           Type: @n.Type.ItemType
-
-                        </div>
-                        <div class="col-md-2">
-                           Brand: @n.Brand.Name
-                            <br />
-                            <br />
-
-                           User: @n.Purchase.Review.UserId.Split('@')[0]
-                        </div>
                     </div>
+                    <div class="col-md-4 text-wrap">
+                        <h4>@n.ProductName</h4>
+                        <p>@n.Purchase.Review.ReviewDetails</p>
+                        <br />
+
+                        <a style="color:gray;cursor:pointer" @onclick="@(()=>Add(n.ProductId))"><span id="@n.ProductId"> @LikeList.Where(x => x.ProductId == n.ProductId).Count() Like</span> </a>
+
+                    </div>
+                    <div class="col-md-2">
+                        Sport: @n.Sport.SportName
+                        <br />
+                        <br />
+                        Date Purchased: @n.Purchase.Review.ReviewDateTime.Value.ToShortDateString()
+                    </div>
+                    <div class="col-md-2">
+                        Type: @n.Type.ItemType
+                        <br />
+                        <br />
+                        Rating: @n.Purchase.Review.ReviewRating
+                    </div>
+                    <div class="col-md-2">
+                        Brand: @n.Brand.Name
+                        <br />
+                        <br />
+
+                        User: @n.Purchase.Review.UserId.Split('@')[0]
+                    </div>
+                </div>
 
                     <br />
 

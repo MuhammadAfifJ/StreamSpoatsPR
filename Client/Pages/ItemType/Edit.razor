@@ -1,4 +1,4 @@
-﻿@page "/itemType/edit/{id:int}"
+﻿@page "/ItemType/edit/{id:int}"
 @inject HttpClient _client
 @inject NavigationManager _navManager
 
@@ -18,6 +18,6 @@
     async Task EditType()
     {
         await _client.PutAsJsonAsync($"{Endpoints.TypeEndpoint}/{id}", type);
-        _navManager.NavigateTo("/ItmeType/");
+        _navManager.NavigateTo("/ItemType/");
     }
 }

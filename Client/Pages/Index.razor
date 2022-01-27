@@ -8,7 +8,7 @@
 
 
  <div class="container">
-        <div class="jumbotron">
+        <div class="jumbotron" style="background-color:goldenrod">
             <h1>Top 5 Reviews</h1>
             
         </div>
@@ -21,7 +21,7 @@
                         <div class="row">
                             <div class="col-md-2">
                                 <div class="thumbnail">
-                                    <img src="/Data/@n.ProductImage" alt="Lights" style="width:100%;height:100px">
+                                    <img src="/Data/@n.ProductImage" alt="No Image" style="width:100%;height:100px">
                                     <div class="caption">
                                     </div>
                                 </div>
@@ -37,11 +37,13 @@
                                Sport: @n.Sport.SportName
                                 <br />
                                 <br />
-                                @n.Purchase.Review.ReviewDateTime.Value.ToShortDateString()
+                                Date Purchased: @n.Purchase.Review.ReviewDateTime.Value.ToShortDateString()
                             </div>
                             <div class="col-md-2">
-                               Type: @n.Type.ItemType
-
+                                Type: @n.Type.ItemType
+                                <br />
+                                <br />
+                                Rating: @n.Purchase.Review.ReviewRating
                             </div>
                             <div class="col-md-2">
                                Name: @n.Brand.Name

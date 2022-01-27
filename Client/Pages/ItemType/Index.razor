@@ -1,4 +1,4 @@
-﻿@page "/ItmeType/"
+﻿@page "/ItemType/"
 @using StreamSpoatsPR.Shared
 @using Type = StreamSpoatsPR.Shared.Type;
 @inject HttpClient Http
@@ -8,7 +8,7 @@
 <h3 class="card-title">Types</h3>
 <br />
 
-<a href="/ItmeType/create" class="btn btn-secondary">
+<a href="/ItemType/create" class="btn btn-secondary">
     <span class="oi oi-plus"></span>
     Create New Type
 </a>
@@ -44,7 +44,7 @@ else
                         @*<a href="/brand/view/@n.ID" class="btn btn-primary">
                                 <span class="oi oi-book"></span>
                             </a>*@
-                        <a href="/itemType/edit/@n.ID" class="btn btn-warning">
+                        <a href="/ItemType/edit/@n.ID" class="btn btn-warning">
                             <span class="oi oi-pencil"></span>
                         </a>
                         <button class="btn btn-danger" @onclick="@(()=>Delete(n.ID))">

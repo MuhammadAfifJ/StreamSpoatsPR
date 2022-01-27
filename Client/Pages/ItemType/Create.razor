@@ -1,4 +1,4 @@
-﻿@page "/ItmeType/create/"
+﻿@page "/ItemType/create/"
 @inject HttpClient _client
 @inject NavigationManager _navManager
 
@@ -14,6 +14,6 @@
     private async Task CreateType()
     {
         await _client.PostAsJsonAsync(Endpoints.TypeEndpoint, type);
-        _navManager.NavigateTo("/ItmeType/");
+        _navManager.NavigateTo("/ItemType/");
     }
 }
