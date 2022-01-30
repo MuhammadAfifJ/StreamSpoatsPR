@@ -115,13 +115,13 @@
                 }
                 else
                 {
-                    <select class="" style="width:150px" @onchange="OnSportList">
-                        <option value="0" selected>All</option>
-                        @foreach (var n in SportList)
-                        {
-                            <option value="@n.ID">@n.SportName</option>
-                        }
-                    </select>
+            <select class="" style="width:150px" @onchange="OnSportList">
+                <option value="0" selected>All</option>
+                @foreach (var n in SportList)
+                {
+                    <option value="@n.ID">@n.SportName</option>
+                }
+            </select>
                 }
             </div>
         </div>
