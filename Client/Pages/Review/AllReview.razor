@@ -11,8 +11,8 @@
 
 
 <div class="container">
-    <div class="jumbotron" style="background-color: cornflowerblue; color: darkslategray; text-align: center">
-        <h1>All Reviews</h1>
+    <div <img src="/NewFolder/AllReviews.png" asp-append-version="true" width="500" height="200" />
+       
 
     </div>
     <div class="row">
@@ -115,13 +115,13 @@
                 }
                 else
                 {
-                    <select class="" style="width:150px" @onchange="OnSportList">
-                        <option value="0" selected>All</option>
-                        @foreach (var n in SportList)
-                        {
-                            <option value="@n.ID">@n.SportName</option>
-                        }
-                    </select>
+            <select class="" style="width:150px" @onchange="OnSportList">
+                <option value="0" selected>All</option>
+                @foreach (var n in SportList)
+                {
+                    <option value="@n.ID">@n.SportName</option>
+                }
+            </select>
                 }
             </div>
         </div>
