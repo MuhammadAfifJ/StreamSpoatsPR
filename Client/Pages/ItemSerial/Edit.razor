@@ -1,0 +1,23 @@
+﻿@page "/serial/edit/{id:int}"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+<h3>Edit Item Serial</h3>
+
+<FormComponent ButtonText="Update" OnValidSubmit="EditSerial" type="serial" />
+
+@code {
+    [Parameter] public int id { get; set; }
+    Serial serial = new Serial();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        serial = await _client.GetFromJsonAsync<Serial>($"{Endpoints.SerialEndpoint}/{id}");
+    }
+
+    async Task EditSerial()
+    {
+        await _client.PutAsJsonAsync($"{Endpoints.SerialEndpoint}/{id}", serial);
+        _navManager.NavigateTo("/serial/");
+    }
+}

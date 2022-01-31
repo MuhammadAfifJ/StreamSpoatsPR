@@ -221,5 +221,5 @@
         ProductList = await _client.GetFromJsonAsync<Product[]>($"/api/product/GetProductByConditionAsync?ItemType={ItemType}&BrandName={BrandName}&SportName={SportName}");
         this.StateHasChanged();
     }
-
+    
 }

@@ -18,7 +18,10 @@ namespace StreamSpoatsPR.Server.Data
 
         public DbSet<Brand> Brands { get; set; }
         public DbSet<Type> Types { get; set; }
-        public DbSet<StreamSpoatsPR.Shared.Sport> Sport { get; set; }
+        //public DbSet<StreamSpoatsPR.Shared.Sport> Sport { get; set; }
+        public DbSet<Sport> Sport { get; set; }
+        public DbSet<Serial> Serial { get; set; }
+        public DbSet<Prodname> Prodname { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Purchase> Purchases { get; set; }
         public DbSet<Review> Reviews { get; set; }

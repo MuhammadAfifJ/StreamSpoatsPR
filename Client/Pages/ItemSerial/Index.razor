@@ -1,0 +1,85 @@
+﻿@page "/serial/"
+@using StreamSpoatsPR.Shared
+@inject HttpClient Http
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
+
+<div class="container" style="text-align: center; margin: auto; justify-content: center; align-items: center">
+    <h3 class="card-title" style="text-align:center">Item Serials</h3>
+    <br />
+
+
+    <a href="/serial/create" class="btn btn-secondary">
+        <span class="oi oi-plus" style="width:100%;text-align:center;margin:auto;justify-content:center;align-items:center"></span>
+        Create New Item Serial
+    </a>
+    <br />
+    <br />
+
+    @if (serial == null)
+    {
+        <div class="alert alert-info">Loading Serials...</div>
+    }
+    else
+    {
+        <table class="align-content-center" style="width:100%;margin:auto">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Item Serial</th>
+                    <th>Actions</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var n in serial)
+                {
+                    <tr>
+                        <td>@n.ID</td>
+                        <td>@n.ItemSerial</td>
+                        <td>
+                            <a href="/serial/edit/@n.ID" class="btn btn-warning">
+                                <span class="oi oi-pencil"></span>
+                            </a>
+                            <button class="btn btn-danger" @onclick="@(()=>Delete(n.ID))">
+                                <span class="oi oi-delete"></span>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+@code {
+    private Serial[] serial;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+        if (!user.Identity.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo($"Login", forceLoad: true);
+        }
+        else
+        {
+            Console.WriteLine("User is authenticated.");
+            serial = await Http.GetFromJsonAsync<Serial[]>($"{Endpoints.SerialEndpoint}");
+        }
+    }
+
+    async Task Delete(int serialId)
+    {
+        var SerialData = serial.First(q => q.ID == serialId);
+        var confirm = await JsRuntime.InvokeAsync<bool>("confirm", $"Do you want to delete {SerialData.ID}?");
+        if (confirm)
+        {
+            await Http.DeleteAsync($"{Endpoints.SerialEndpoint}/{serialId}");
+            await OnInitializedAsync();
+        }
+    }
+
+}

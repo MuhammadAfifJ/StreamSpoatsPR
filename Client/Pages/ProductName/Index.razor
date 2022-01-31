@@ -1,0 +1,85 @@
+﻿@page "/prodname/"
+@using StreamSpoatsPR.Shared
+@inject HttpClient Http
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
+
+    <div class="container" style="text-align: center; margin: auto; justify-content: center; align-items: center">
+        <h3 class="card-title" style="text-align:center">Product Names</h3>
+        <br />
+
+
+        <a href="/prodname/create" class="btn btn-secondary">
+            <span class="oi oi-plus" style="width:100%;text-align:center;margin:auto;justify-content:center;align-items:center"></span>
+            Create New Product Name
+        </a>
+        <br />
+        <br />
+
+        @if (prodname == null)
+        {
+            <div class="alert alert-info">Loading Product Names...</div>
+        }
+        else
+        {
+            <table class="align-content-center" style="width:100%;margin:auto">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product Name</th>
+                        <th>Actions</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var n in prodname)
+                    {
+                        <tr>
+                            <td>@n.ID</td>
+                            <td>@n.ProductName</td>
+                            <td>
+                                <a href="/prodname/edit/@n.ID" class="btn btn-warning">
+                                    <span class="oi oi-pencil"></span>
+                                </a>
+                                <button class="btn btn-danger" @onclick="@(()=>Delete(n.ID))">
+                                    <span class="oi oi-delete"></span>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+    @code {
+        private Prodname[] prodname;
+        [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+
+        protected override async Task OnInitializedAsync()
+        {
+            var authState = await authenticationStateTask;
+            var user = authState.User;
+            if (!user.Identity.IsAuthenticated)
+            {
+                NavigationManager.NavigateTo($"Login", forceLoad: true);
+            }
+            else
+            {
+                Console.WriteLine("User is authenticated.");
+                prodname = await Http.GetFromJsonAsync<Prodname[]>($"{Endpoints.ProductNameEndpoint}");
+            }
+        }
+
+        async Task Delete(int prodnameId)
+        {
+            var ProdnameData = prodname.First(q => q.ID == prodnameId);
+            var confirm = await JsRuntime.InvokeAsync<bool>("confirm", $"Do you want to delete {ProdnameData.ID}?");
+            if (confirm)
+            {
+                await Http.DeleteAsync($"{Endpoints.ProductNameEndpoint}/{prodnameId}");
+                await OnInitializedAsync();
+            }
+        }
+
+    }

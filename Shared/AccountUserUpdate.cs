@@ -13,5 +13,6 @@ namespace StreamSpoatsPR.Shared
         public string Phone { get; set; }
         public string Email { get; set; }
         public string ProfileImage { get; set; }
+        public string Tier { get; set; }
     }
 }

@@ -6,12 +6,12 @@
 <hr />
 <br />
 
-<FormComponent ButtonText="Create Sport" sport="sport" OnValidSubmit="@Createbrand" />
+<FormComponent ButtonText="Create Sport" sport="sport" OnValidSubmit="@Createsport" />
 
 @code {
     Sport sport = new Sport();
 
-    private async Task Createbrand()
+    private async Task Createsport()
     {
         await _client.PostAsJsonAsync(Endpoints.SportEndpoint, sport);
         _navManager.NavigateTo("/sport/");

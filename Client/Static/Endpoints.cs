@@ -12,6 +12,8 @@ namespace StreamSpoatsPR.Client.Static
         public static readonly string BrandEndpoint = $"{Prefix}/brand";
         public static readonly string TypeEndpoint = $"{Prefix}/type";
         public static readonly string SportEndpoint = $"{Prefix}/sport";
+        public static readonly string SerialEndpoint = $"{Prefix}/serial";
+        public static readonly string ProductNameEndpoint = $"{Prefix}/prodname";
         public static readonly string ReviewEndpoint = $"{Prefix}/review";
         public static readonly string PurchaseEndpoint = $"{Prefix}/purchase";
         public static readonly string ProductEndpoint = $"{Prefix}/product";
