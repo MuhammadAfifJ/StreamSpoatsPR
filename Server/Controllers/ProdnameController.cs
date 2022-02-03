@@ -12,11 +12,11 @@ namespace StreamSpoatsPR.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductNameController : ControllerBase
+    public class ProdnameController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public ProductNameController(ApplicationDbContext context)
+        public ProdnameController(ApplicationDbContext context)
         {
             _context = context;
         }

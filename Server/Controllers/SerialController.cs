@@ -12,11 +12,11 @@ namespace StreamSpoatsPR.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ItemSerialController : ControllerBase
+    public class SerialController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public ItemSerialController(ApplicationDbContext context)
+        public SerialController(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -84,7 +84,7 @@ namespace StreamSpoatsPR.Server.Controllers
             return CreatedAtAction("GetSerial", new { id = serial.ID }, serial);
         }
 
-        // DELETE: api/ItemSerial/5
+        // DELETE: api/Serial/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSerial(int id)
         {
