@@ -8,12 +8,6 @@
 <div class="container" style="text-align: center; margin: auto; justify-content: center; align-items: center">
     <h3 class="card-title">Brands</h3>
     <br />
-
-    <a href="/brand/create" class="btn btn-secondary">
-        <span class="oi oi-plus"></span>
-        Create New Brand
-    </a>
-    <br />
     <br />
 
     @if (brand == null)
@@ -27,8 +21,6 @@
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
-                    <th>Actions</th>
-
                 </tr>
             </thead>
             <tbody>
@@ -36,18 +28,7 @@
                 {
                     <tr>
                         <td>@n.ID</td>
-                        <td>@n.Name</td>
-                        <td>
-                            @*<a href="/brand/view/@n.ID" class="btn btn-primary">
-                                    <span class="oi oi-book"></span>
-                                </a>*@
-                            <a href="/brand/edit/@n.ID" class="btn btn-warning">
-                                <span class="oi oi-pencil"></span>
-                            </a>
-                            <button class="btn btn-danger" @onclick="@(()=>Delete(n.ID))">
-                                <span class="oi oi-delete"></span>
-                            </button>
-                        </td>
+                        <td>@n.Name</td>  
                     </tr>
                 }
             </tbody>
@@ -86,15 +67,6 @@
             JsRuntime.InvokeVoidAsync("DataTableDispose", "#brandTable");
         }
 
-    async Task Delete(int brandId)
-    {
-        var BrandData = brand.First(q => q.ID == brandId);
-        var confirm = await JsRuntime.InvokeAsync<bool>("confirm", $"Do you want to delete {BrandData.ID}?");
-        if (confirm)
-        {
-            await Http.DeleteAsync($"{Endpoints.BrandEndpoint}/{brandId}");
-            await OnInitializedAsync();
-        }
-    }
+ 
 
 }
