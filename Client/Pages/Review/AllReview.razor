@@ -13,7 +13,7 @@
 <div class="container">
 
     <div class="justify-content-center">
-        <img src="/Banner/All_Reviews.png" asp-append-version="true" width="1110" height="150" class="oi-align-center" />
+        <img src="/Banner/AllReviews.png" asp-append-version="true" width="1110" height="150" class="oi-align-center" />
     </div>
 
     <div class="row">
@@ -25,7 +25,7 @@
                     <div class="row" style="border-style:groove; border-color:darkblue">
                         <div class="col-md-2">
                             <div class="thumbnail">
-                                <img src="/Data/@n.ProductImage" alt="Unavailable" style="width:100%;height:120px">
+                                <img src="/Data/@n.ProductImage" alt="Unavailable" style="width:100%;height:100px">
                                 <div class="caption">
                                 </div>
                             </div>
@@ -63,7 +63,7 @@
                             Brand: @n.Brand.Name
                             <br />
                             <br />
-                            User: @n.Purchase.Review.UserId.Split('@')[0] 
+                            User: @n.Purchase.Review.UserId.Split('@')[0] (@Tier)
                         </div>
                     </div>
 
@@ -139,7 +139,6 @@
     private Sport[] SportList;
     private StreamSpoatsPR.Shared.Type[] TypeList;
     private Product[] ProductList;
-    private Product[] UserProductList;
     private Like[] LikeList;
     public string username = string.Empty;
     public string Tier = string.Empty;
@@ -165,25 +164,23 @@
             SportList = await _client.GetFromJsonAsync<Sport[]>($"{Endpoints.SportEndpoint}");
             TypeList = await _client.GetFromJsonAsync<StreamSpoatsPR.Shared.Type[]>($"{Endpoints.TypeEndpoint}");
             //LikeList = await _client.GetFromJsonAsync<Like[]>($"/api/Like/GetLikeList");
-            UserProductList = await _client.GetFromJsonAsync<Product[]>($"/api/product/GetProductByUserAsync?UserId={user.Identity.Name}");
-            //if (UserProductList.Count() < 5)
-            //{
-            //    Tier = "Novice";
-            //}
-            //if (ProductList.Count() > 4 && UserProductList.Count() < 50)
-            //{
-            //    Tier = "Amateur";
-            //}
-            //if (ProductList.Count() > 49 && ProductList.Count() < 100)
-            //{
-            //    Tier = "Veteran";
-            //}
-            //if (ProductList.Count() > 99)
-            //{
-            //    Tier = "Specialist";
-            //}
-
-            //this.StateHasChanged();
+            //ProductList = await _client.GetFromJsonAsync<Product[]>($"/api/product/GetProductByUserAsync?UserId={user.Identity.Name}");
+            if (ProductList.Count() < 5)
+            {
+                Tier = "Novice";
+            }
+            if (ProductList.Count() > 5 && ProductList.Count() < 50)
+            {
+                Tier = "Amateur";
+            }
+            if (ProductList.Count() > 50 && ProductList.Count() < 100)
+            {
+                Tier = "Veteran";
+            }
+            if (ProductList.Count() > 80)
+            {
+                Tier = "Specialist";
+            }
         }
 
     }
