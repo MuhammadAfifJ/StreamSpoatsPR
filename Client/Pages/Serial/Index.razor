@@ -3,6 +3,7 @@
 @inject HttpClient Http
 @inject IJSRuntime JsRuntime
 @inject NavigationManager NavigationManager
+@implements IDisposable
 
 <div class="container" style="text-align: center; margin: auto; justify-content: center; align-items: center">
     <h3 class="card-title" style="text-align:center">Item Serials</h3>
@@ -22,7 +23,7 @@
     }
     else
     {
-        <table class="align-content-center" style="width:100%;margin:auto">
+        <table class="table table-responsive" id="serialTable">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -69,6 +70,16 @@
             Console.WriteLine("User is authenticated.");
             serial = await Http.GetFromJsonAsync<Serial[]>($"{Endpoints.SerialEndpoint}");
         }
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JsRuntime.InvokeVoidAsync("AddDataTable", "#serialTable");
+    }
+
+    public void Dispose()
+    {
+        JsRuntime.InvokeVoidAsync("DataTableDispose", "#serialTable");
     }
 
     async Task Delete(int serialId)

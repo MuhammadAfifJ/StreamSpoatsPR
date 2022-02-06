@@ -3,87 +3,98 @@
 @inject HttpClient Http
 @inject IJSRuntime JsRuntime
 @inject NavigationManager NavigationManager
+@implements IDisposable
 
-    <div class="container" style="text-align: center; margin: auto; justify-content: center; align-items: center">
-        <h3 class="card-title">Brands</h3>
-        <br />
+<div class="container" style="text-align: center; margin: auto; justify-content: center; align-items: center">
+    <h3 class="card-title">Brands</h3>
+    <br />
 
-        <a href="/brand/create" class="btn btn-secondary">
-            <span class="oi oi-plus"></span>
-            Create New Brand
-        </a>
-        <br />
-        <br />
+    <a href="/brand/create" class="btn btn-secondary">
+        <span class="oi oi-plus"></span>
+        Create New Brand
+    </a>
+    <br />
+    <br />
 
-        @if (brand == null)
+    @if (brand == null)
+    {
+        <div class="alert alert-info">Loading Brands...</div>
+    }
+    else
+    {
+        <table class="table table-responsive" id="brandTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Actions</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var n in brand)
+                {
+                    <tr>
+                        <td>@n.ID</td>
+                        <td>@n.Name</td>
+                        <td>
+                            @*<a href="/brand/view/@n.ID" class="btn btn-primary">
+                                    <span class="oi oi-book"></span>
+                                </a>*@
+                            <a href="/brand/edit/@n.ID" class="btn btn-warning">
+                                <span class="oi oi-pencil"></span>
+                            </a>
+                            <button class="btn btn-danger" @onclick="@(()=>Delete(n.ID))">
+                                <span class="oi oi-delete"></span>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+</div>
+
+@code {
+    private Brand[] brand;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+        if (!user.Identity.IsAuthenticated)
         {
-            <div class="alert alert-info">Loading Brands...</div>
+            NavigationManager.NavigateTo($"Login", forceLoad: true);
         }
         else
         {
-            <table class="align-content-center" style="width:100%;margin:auto">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Actions</th>
+            Console.WriteLine("User is authenticated.");
+            brand = await Http.GetFromJsonAsync<Brand[]>($"{Endpoints.BrandEndpoint}");
+        }
+    }
 
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var n in brand)
-                    {
-                        <tr>
-                            <td>@n.ID</td>
-                            <td>@n.Name</td>
-                            <td>
-                                @*<a href="/brand/view/@n.ID" class="btn btn-primary">
-                                        <span class="oi oi-book"></span>
-                                    </a>*@
-                                <a href="/brand/edit/@n.ID" class="btn btn-warning">
-                                    <span class="oi oi-pencil"></span>
-                                </a>
-                                <button class="btn btn-danger" @onclick="@(()=>Delete(n.ID))">
-                                    <span class="oi oi-delete"></span>
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JsRuntime.InvokeVoidAsync("AddDataTable", "#brandTable");
+    }
+
+    public void Dispose()
+        {
+            JsRuntime.InvokeVoidAsync("DataTableDispose", "#brandTable");
         }
 
-        </div>
-
-        @code {
-            private Brand[] brand;
-            [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
-
-
-            protected override async Task OnInitializedAsync()
-            {
-                var authState = await authenticationStateTask;
-                var user = authState.User;
-                if (!user.Identity.IsAuthenticated)
-                {
-                    NavigationManager.NavigateTo($"Login", forceLoad: true);
-                }
-                else
-                {
-                    Console.WriteLine("User is authenticated.");
-                    brand = await Http.GetFromJsonAsync<Brand[]>($"{Endpoints.BrandEndpoint}");
-                }
-            }
-
-            async Task Delete(int brandId)
-            {
-                var BrandData = brand.First(q => q.ID == brandId);
-                var confirm = await JsRuntime.InvokeAsync<bool>("confirm", $"Do you want to delete {BrandData.ID}?");
-                if (confirm)
-                {
-                    await Http.DeleteAsync($"{Endpoints.BrandEndpoint}/{brandId}");
-                    await OnInitializedAsync();
-                }
-            }
-
+    async Task Delete(int brandId)
+    {
+        var BrandData = brand.First(q => q.ID == brandId);
+        var confirm = await JsRuntime.InvokeAsync<bool>("confirm", $"Do you want to delete {BrandData.ID}?");
+        if (confirm)
+        {
+            await Http.DeleteAsync($"{Endpoints.BrandEndpoint}/{brandId}");
+            await OnInitializedAsync();
         }
+    }
+
+}

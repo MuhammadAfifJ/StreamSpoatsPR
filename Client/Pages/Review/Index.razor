@@ -3,92 +3,103 @@
 @inject HttpClient Http
 @inject IJSRuntime JsRuntime
 @inject NavigationManager NavigationManager
+@implements IDisposable
 
-    <div class="container" style="text-align: center; margin: auto; justify-content: center; align-items: center">
-        <h3 class="card-title">User Reviews</h3>
-        <br />
+<div class="container" style="text-align: center; margin: auto; justify-content: center; align-items: center">
+    <h3 class="card-title">User Reviews</h3>
+    <br />
 
-        <a href="/Review/create" class="btn btn-secondary">
-            <span class="oi oi-plus"></span>
-            Create New Review
-        </a>
-        <br />
-        <br />
+    <a href="/Review/create" class="btn btn-secondary">
+        <span class="oi oi-plus"></span>
+        Create New Review
+    </a>
+    <br />
+    <br />
 
-        @if (product == null)
+    @if (product == null)
+    {
+        <div class="alert alert-info">Loading Reviews...</div>
+    }
+    else
+    {
+        <table class="table table-responsive" id="reviewTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Product Name</th>
+                    <th>Item Serial</th>
+                    <th>Sport Name</th>
+                    <th>Item Type</th>
+                    <th>Brand Name</th>
+                    <th>Actions</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var n in product)
+                {
+                    <tr>
+                        <td>@n.ProductId</td>
+                        <td>@n.ProductName</td>
+                        <td>@n.ItemSerial</td>
+                        <td>@n.Sport.SportName</td>
+                        <td>@n.Type.ItemType</td>
+                        <td>@n.Brand.Name</td>
+                        <td>
+
+                            <a href="/Review/edit/@n.ProductId" class="btn btn-warning">
+                                <span class="oi oi-pencil"></span>
+                            </a>
+                            <button class="btn btn-danger" @onclick="@(()=>Delete(n.ProductId))">
+                                <span class="oi oi-delete"></span>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private Product[] product;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+        if (!user.Identity.IsAuthenticated)
         {
-            <div class="alert alert-info">Loading Reviews...</div>
+            NavigationManager.NavigateTo($"Login", forceLoad: true);
         }
         else
         {
-            <table class="table table-responsive">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Product Name</th>
-                        <th>Item Serial</th>
-                        <th>Sport Name</th>
-                        <th>Item Type</th>
-                        <th>Brand Name</th>
-                        <th>Actions</th>
-
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var n in product)
-                    {
-                        <tr>
-                            <td>@n.ProductId</td>
-                            <td>@n.ProductName</td>
-                            <td>@n.ItemSerial</td>
-                            <td>@n.Sport.SportName</td>
-                            <td>@n.Type.ItemType</td>
-                            <td>@n.Brand.Name</td>
-                            <td>
-
-                                <a href="/Review/edit/@n.ProductId" class="btn btn-warning">
-                                    <span class="oi oi-pencil"></span>
-                                </a>
-                                <button class="btn btn-danger" @onclick="@(()=>Delete(n.ProductId))">
-                                    <span class="oi oi-delete"></span>
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            Console.WriteLine("User is authenticated.");
+            product = await Http.GetFromJsonAsync<Product[]>($"/api/product/GetProductByUserAsync?UserId={user.Identity.Name}");
         }
-        </div>
+    }
 
-        @code {
-            private Product[] product;
-            [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JsRuntime.InvokeVoidAsync("AddDataTable", "#reviewTable");
+    }
 
+    public void Dispose()
+    {
+        JsRuntime.InvokeVoidAsync("DataTableDispose", "#reviewTable");
+    }
 
-            protected override async Task OnInitializedAsync()
-            {
-                var authState = await authenticationStateTask;
-                var user = authState.User;
-                if (!user.Identity.IsAuthenticated)
-                {
-                    NavigationManager.NavigateTo($"Login", forceLoad: true);
-                }
-                else
-                {
-                    Console.WriteLine("User is authenticated.");
-                    product = await Http.GetFromJsonAsync<Product[]>($"/api/product/GetProductByUserAsync?UserId={user.Identity.Name}");
-                }
-            }
-
-            async Task Delete(int productId)
-            {
-                var productData = product.First(q => q.ProductId == productId);
-                var confirm = await JsRuntime.InvokeAsync<bool>("confirm", $"Do you want to delete {productData.ProductId}?");
-                if (confirm)
-                {
-                    await Http.DeleteAsync($"{Endpoints.ProductEndpoint}/{productData.ProductId}");
-                    await OnInitializedAsync();
-                }
-            }
-
+    async Task Delete(int productId)
+    {
+        var productData = product.First(q => q.ProductId == productId);
+        var confirm = await JsRuntime.InvokeAsync<bool>("confirm", $"Do you want to delete {productData.ProductId}?");
+        if (confirm)
+        {
+            await Http.DeleteAsync($"{Endpoints.ProductEndpoint}/{productData.ProductId}");
+            await OnInitializedAsync();
         }
+    }
+
+}
