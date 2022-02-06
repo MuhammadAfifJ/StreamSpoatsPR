@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\Data\" />
-    <Folder Include="wwwroot\Banner\" />
   </ItemGroup>
 
   <ItemGroup>

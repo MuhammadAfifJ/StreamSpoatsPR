@@ -9,7 +9,7 @@
 
 <div class="container">
     <div class="justify-content-center">
-        <img src="/Banner/Top5_reviews.png" asp-append-version="true" width="1110" height="150" class="oi-align-center" />
+        <img src="/Banner/Top5Reviews.png" asp-append-version="true" width="1110" height="150" class="oi-align-center" />
     </div>
   
     <div class="row" style="background-color:#e7f1e3">
@@ -21,7 +21,7 @@
                     <div class="row" style="outline-style:double; outline-color:darkslategrey">
                         <div class="col-md-2">
                             <div class="thumbnail">
-                                <img src="/Data/@n.ProductImage" alt="Unavailable" style="width:100%;height:100px">
+                                <img src="/Data/@n.ProductImage" alt="Unavailable" style="width:100%;height:120px">
                                 <div class="caption">
                                 </div>
                             </div>
@@ -49,7 +49,7 @@
                             Name: @n.Brand.Name
                             <br />
                             <br />
-                            User: @n.Purchase.Review.UserId.Split('@')[0] (@Tier)
+                            User: @n.Purchase.Review.UserId.Split('@')[0]
                         </div>
                     </div>
 
@@ -95,22 +95,7 @@
             username = user.Identity.Name;
             LikeList = await _client.GetFromJsonAsync<Like[]>($"/api/Like/GetLikeList");
             ProductList = await _client.GetFromJsonAsync<Product[]>($"/api/product/GetTopAsync");
-            if (ProductList.Count() < 5)
-            {
-                Tier = "Novice";
-            }
-            if (ProductList.Count() > 5 && ProductList.Count() < 50)
-            {
-                Tier = "Amateur";
-            }
-            if (ProductList.Count() > 50 && ProductList.Count() < 100)
-            {
-                Tier = "Veteran";
-            }
-            if (ProductList.Count() > 80)
-            {
-                Tier = "Specialist";
-            }
+            
         }
 
 
