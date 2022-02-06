@@ -30,14 +30,14 @@ namespace StreamSpoatsPR.Server.Controllers
 
         }
 
-       
+
 
         // GET: api/Product/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
             var product = await _context.Products.Include(x => x.Purchase).Include(x => x.Sport).
-                Include(x => x.Type).Include(x => x.Brand).Include(x => x.Purchase.Review).Where(x=>x.ProductId==id).FirstOrDefaultAsync();
+                Include(x => x.Type).Include(x => x.Brand).Include(x => x.Purchase.Review).Where(x => x.ProductId == id).FirstOrDefaultAsync();
 
             if (product == null)
             {
@@ -102,7 +102,7 @@ namespace StreamSpoatsPR.Server.Controllers
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
 
-            var Purchases = await _context.Purchases.AsNoTracking().Where(x=>x.ItemSerial==product.ItemSerial).FirstOrDefaultAsync();
+            var Purchases = await _context.Purchases.AsNoTracking().Where(x => x.ItemSerial == product.ItemSerial).FirstOrDefaultAsync();
             if (Purchases == null)
             {
                 return NotFound();
@@ -135,28 +135,28 @@ namespace StreamSpoatsPR.Server.Controllers
         {
 
             return await _context.Products.Include(x => x.Purchase).Include(x => x.Sport).Include(x => x.Type).Include(x => x.Brand).Include(x => x.Purchase.Review)
-                .Where(x=>x.Purchase.Review.UserId==UserId).ToListAsync();
+                .Where(x => x.Purchase.Review.UserId == UserId).ToListAsync();
         }
 
         [HttpGet]
         [Route("GetProductByConditionAsync")]
-        public async Task<List<Product>> GetWhere(int ItemType,  int BrandName, int SportName)
+        public async Task<List<Product>> GetWhere(int ItemType, int BrandName, int SportName)
         {
-            if (ItemType!=0  && BrandName!=0 && SportName!=0)
+            if (ItemType != 0 && BrandName != 0 && SportName != 0)
             {
                 return await _context.Products.Include(x => x.Purchase).Include(x => x.Sport).Include(x => x.Type).Include(x => x.Brand).Include(x => x.Purchase.Review)
                .Where(x => x.ItemType == ItemType && x.BrandName == BrandName && x.SportName == SportName).ToListAsync();
             }
-            else if (ItemType != 0 &&  BrandName != 0 )
+            else if (ItemType != 0 && BrandName != 0)
             {
                 return await _context.Products.Include(x => x.Purchase).Include(x => x.Sport).Include(x => x.Type).Include(x => x.Brand).Include(x => x.Purchase.Review)
-                               .Where(x => x.ItemType == ItemType  && x.BrandName == BrandName).ToListAsync();
+                               .Where(x => x.ItemType == ItemType && x.BrandName == BrandName).ToListAsync();
 
             }
-            else if (ItemType != 0  )
+            else if (ItemType != 0)
             {
                 return await _context.Products.Include(x => x.Purchase).Include(x => x.Sport).Include(x => x.Type).Include(x => x.Brand).Include(x => x.Purchase.Review)
-                               .Where(x => x.ItemType == ItemType ).ToListAsync();
+                               .Where(x => x.ItemType == ItemType).ToListAsync();
 
             }
             if (ItemType != 0)
@@ -177,7 +177,7 @@ namespace StreamSpoatsPR.Server.Controllers
 
             }
 
-            else if (ItemType == 0  && BrandName == 0 && SportName == 0)
+            else if (ItemType == 0 && BrandName == 0 && SportName == 0)
             {
                 return await _context.Products.Include(x => x.Purchase).Include(x => x.Sport).Include(x => x.Type).Include(x => x.Brand).Include(x => x.Purchase.Review)
                .ToListAsync();
@@ -188,17 +188,17 @@ namespace StreamSpoatsPR.Server.Controllers
                                .Where(x => x.SportName == SportName).ToListAsync();
 
             }
-            else if (ItemType == 0 )
+            else if (ItemType == 0)
             {
                 return await _context.Products.Include(x => x.Purchase).Include(x => x.Sport).Include(x => x.Type).Include(x => x.Brand).Include(x => x.Purchase.Review)
-                               .Where(x =>  x.BrandName == BrandName && x.SportName == SportName).ToListAsync();
+                               .Where(x => x.BrandName == BrandName && x.SportName == SportName).ToListAsync();
 
             }
 
-            
+
 
             return await _context.Products.Include(x => x.Purchase).Include(x => x.Sport).Include(x => x.Type).Include(x => x.Brand).Include(x => x.Purchase.Review)
-                .Where(x => x.ItemType == ItemType  &&  x.BrandName == BrandName && x.SportName == SportName).ToListAsync();
+                .Where(x => x.ItemType == ItemType && x.BrandName == BrandName && x.SportName == SportName).ToListAsync();
             //return await _context.Products.Include(x => x.Purchase).Include(x => x.Sport).Include(x => x.Type).Include(x => x.Brand).Include(x => x.Purchase.Review)
             //   .Where(x => x.ItemType == ItemType || x.Type.ItemColor == ItemColor || x.Type.ItemSize == ItemSize || x.BrandName == BrandName || x.SportName == SportName).ToListAsync();
         }
@@ -213,25 +213,26 @@ namespace StreamSpoatsPR.Server.Controllers
             var Toplike = likelist.GroupBy(x => x.ProductId).Select(grp => new
             {
                 likeId = grp.Key,
-                likelist=grp.ToList(),
+                likelist = grp.ToList(),
                 count = grp.Count()
             });
             var ToplikeOder = Toplike.OrderByDescending(x => x.count);
-            foreach(var n in ToplikeOder)
+            foreach (var n in ToplikeOder)
             {
-                foreach(var r in n.likelist)
+                foreach (var r in n.likelist)
                 {
                     var product = await _context.Products.Include(x => x.Purchase).Include(x => x.Sport).Include(x => x.Type).Include(x => x.Brand).Include(x => x.Purchase.Review)
-                                  .Where(x=>x.ProductId==r.ProductId).FirstOrDefaultAsync();
+                                  .Where(x => x.ProductId == r.ProductId).FirstOrDefaultAsync();
                     products.Add(product);
                 }
             }
-            if(products.Count!=5)
+            products = products.Distinct().ToList();
+            if (products.Count != 5)
             {
-               var productList= await _context.Products.Include(x => x.Purchase).Include(x => x.Sport).Include(x => x.Type).Include(x => x.Brand).Include(x => x.Purchase.Review).ToListAsync();
-               foreach(var n in productList)
+                var productList = await _context.Products.Include(x => x.Purchase).Include(x => x.Sport).Include(x => x.Type).Include(x => x.Brand).Include(x => x.Purchase.Review).ToListAsync();
+                foreach (var n in productList)
                 {
-                    if(!products.Any(x=>x.ProductId==n.ProductId))
+                    if (!products.Any(x => x.ProductId == n.ProductId))
                     {
                         products.Add(n);
                     }
@@ -246,11 +247,11 @@ namespace StreamSpoatsPR.Server.Controllers
                 return products;
             }
             return products;
-           
+
         }
         #endregion
 
-      
+
 
     }
 }

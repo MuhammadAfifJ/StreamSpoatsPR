@@ -12,64 +12,64 @@
 
 <div class="container">
     <div <img src="/NewFolder/AllReviews.png" asp-append-version="true" width="500" height="200" />
-       
+
 
     </div>
     <div class="row">
         @if (ProductList != null)
         {
-        <div class="col-md-10">
-            @foreach (var n in ProductList)
-            {
-            <div class="row" style="border-style:groove; border-color:darkblue">
-                <div class="col-md-2">
-                    <div class="thumbnail">
-                        <img src="/Data/@n.ProductImage" alt="Unavailable" style="width:100%;height:100px">
-                        <div class="caption">
+            <div class="col-md-10">
+                @foreach (var n in ProductList)
+                {
+                    <div class="row" style="border-style:groove; border-color:darkblue">
+                        <div class="col-md-2">
+                            <div class="thumbnail">
+                                <img src="/Data/@n.ProductImage" alt="Unavailable" style="width:100%;height:100px">
+                                <div class="caption">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-wrap">
+                            <h4>@n.ProductName</h4>
+                            <p>@n.Purchase.Review.ReviewDetails</p>
+                            <br />
+
+                            <a style="color:gray;cursor:pointer" @onclick="@(()=>Add(n.ProductId))"><span id="@n.ProductId"> @LikeList.Where(x => x.ProductId == n.ProductId).Count() Like</span> </a>
+
+                        </div>
+                        <div class="col-md-2">
+                            Sport: @n.Sport.SportName
+                            <br />
+                            <br />
+                            Date Purchased: @n.Purchase.Review.ReviewDateTime.Value.ToShortDateString()
+                        </div>
+                        <div class="col-md-2">
+                            Type: @n.Type.ItemType
+                            <br />
+                            <br />
+                            Rating: @n.Purchase.Review.ReviewRating
+                        </div>
+                        @*@foreach (var a in Account)
+                            {
+                                @if (n.Purchase.Review.UserId == a.Email)
+                                {
+                                    uTier = a.Tier;
+                                    alias = a.Name;
+                                }
+                            }*@
+
+                        <div class="col-md-2">
+                            Brand: @n.Brand.Name
+                            <br />
+                            <br />
+                            User: @n.Purchase.Review.UserId.Split('@')[0] (@Tier)
                         </div>
                     </div>
-                </div>
-                <div class="col-md-4 text-wrap">
-                    <h4>@n.ProductName</h4>
-                    <p>@n.Purchase.Review.ReviewDetails</p>
+
                     <br />
 
-                    <a style="color:gray;cursor:pointer" @onclick="@(()=>Add(n.ProductId))"><span id="@n.ProductId"> @LikeList.Where(x => x.ProductId == n.ProductId).Count() Like</span> </a>
-
-                </div>
-                <div class="col-md-2">
-                    Sport: @n.Sport.SportName
-                    <br />
-                    <br />
-                    Date Purchased: @n.Purchase.Review.ReviewDateTime.Value.ToShortDateString()
-                </div>
-                <div class="col-md-2">
-                    Type: @n.Type.ItemType
-                    <br />
-                    <br />
-                    Rating: @n.Purchase.Review.ReviewRating
-                </div>
-                @*@foreach (var a in Account)
-                {
-                    @if (n.Purchase.Review.UserId == a.Email)
-                    {
-                        uTier = a.Tier;
-                        alias = a.Name;
-                    }
-                }*@
-
-                <div class="col-md-2">
-                    Brand: @n.Brand.Name
-                    <br />
-                    <br />
-                    User: @n.Purchase.Review.UserId.Split('@')[0]
-                </div>
+                }
             </div>
-
-                <br />
-
-            }
-        </div>
         }
         <div class="col-md-2">
             <div class="form-group" style="margin-bottom:0">
@@ -115,13 +115,13 @@
                 }
                 else
                 {
-            <select class="" style="width:150px" @onchange="OnSportList">
-                <option value="0" selected>All</option>
-                @foreach (var n in SportList)
-                {
-                    <option value="@n.ID">@n.SportName</option>
-                }
-            </select>
+                    <select class="" style="width:150px" @onchange="OnSportList">
+                        <option value="0" selected>All</option>
+                        @foreach (var n in SportList)
+                        {
+                            <option value="@n.ID">@n.SportName</option>
+                        }
+                    </select>
                 }
             </div>
         </div>
@@ -140,6 +140,9 @@
     private Product[] ProductList;
     private Like[] LikeList;
     public string username = string.Empty;
+    public string Tier = string.Empty;
+    //private Product[] ProductList;
+    //private Like[] LikeList;
 
     [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
 
@@ -159,6 +162,24 @@
             BrandList = await _client.GetFromJsonAsync<Brand[]>($"{Endpoints.BrandEndpoint}");
             SportList = await _client.GetFromJsonAsync<Sport[]>($"{Endpoints.SportEndpoint}");
             TypeList = await _client.GetFromJsonAsync<StreamSpoatsPR.Shared.Type[]>($"{Endpoints.TypeEndpoint}");
+            //LikeList = await _client.GetFromJsonAsync<Like[]>($"/api/Like/GetLikeList");
+            //ProductList = await _client.GetFromJsonAsync<Product[]>($"/api/product/GetProductByUserAsync?UserId={user.Identity.Name}");
+            if (ProductList.Count() < 5)
+            {
+                Tier = "Novice";
+            }
+            if (ProductList.Count() > 5 && ProductList.Count() < 50)
+            {
+                Tier = "Amateur";
+            }
+            if (ProductList.Count() > 50 && ProductList.Count() < 100)
+            {
+                Tier = "Veteran";
+            }
+            if (ProductList.Count() > 80)
+            {
+                Tier = "Specialist";
+            }
         }
 
     }
@@ -221,5 +242,5 @@
         ProductList = await _client.GetFromJsonAsync<Product[]>($"/api/product/GetProductByConditionAsync?ItemType={ItemType}&BrandName={BrandName}&SportName={SportName}");
         this.StateHasChanged();
     }
-    
+
 }

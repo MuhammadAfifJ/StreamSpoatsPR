@@ -104,5 +104,21 @@ namespace StreamSpoatsPR.Server.Controllers
         {
             return _context.Serial.Any(e => e.ID == id);
         }
+
+        [HttpGet]
+        [Route("DeleteSerialReview")]
+        public async Task<IActionResult> DeleteSerialReview(string id)
+        {
+            var serial = await _context.Serial.Where(x => x.ItemSerial == id).FirstOrDefaultAsync();
+            if (serial == null)
+            {
+                return NotFound();
+            }
+
+            _context.Serial.Remove(serial);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }

@@ -19,7 +19,7 @@
             <div class="col-sm-4">
                 <div class="form-group">
                     <label>Product Name:</label>
-                    <input type="text" class="form-control my-input" @bind="Review.ProductName" required placeholder="Product Name">
+                    <input type="text" class="form-control my-input" @bind="Review.ProductName" required placeholder="Product Name" disabled>
                 </div>
             </div>
             <div class="col-sm-4">
@@ -30,7 +30,7 @@
             </div>
             <div class="col-sm-4">
                 <div class="form-group">
-                    <img src="/Data/@imageName" width="50" height="50"/>
+                    <img src="/Data/@imageName" width="50" height="50" />
                 </div>
             </div>
         </div>
@@ -44,7 +44,7 @@
             </div>
             <div class="col-sm-2">
                 <div class="form-group">
-                    <label>Rating:</label>                   
+                    <label>Rating:</label>
                     <select class="form-control" @bind="@ReviewRating">
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -78,7 +78,7 @@
             <div class="col-sm-3">
                 <div class="form-group">
                     <label>Item Serial:</label>
-                    <input type="text" class="form-control my-input" @bind="Review.ItemSerial" required disabled/>
+                    <input type="text" class="form-control my-input" @bind="Review.ItemSerial" required disabled />
                 </div>
             </div>
             <div class="col-sm-3">
@@ -172,7 +172,7 @@
         SportList = await _client.GetFromJsonAsync<Sport[]>($"{Endpoints.SportEndpoint}");
         TypeList = await _client.GetFromJsonAsync<StreamSpoatsPR.Shared.Type[]>($"{Endpoints.TypeEndpoint}");
         ProductById = await _client.GetFromJsonAsync<Product>($"{Endpoints.ProductEndpoint}/{ProductId}");
-        if(ProductById!=null)
+        if (ProductById != null)
         {
             Review.ProductName = ProductById.ProductName;
             Review.ReviewDetails = ProductById.Purchase.Review.ReviewDetails;

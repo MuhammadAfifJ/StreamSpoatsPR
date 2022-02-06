@@ -18,9 +18,9 @@ namespace StreamSpoatsPR.Shared
 
         public DateTime? ReviewDateTime { get; set; }
         public int UserId { get; set; }
-        [Required]
+        //[Required]
         public string ItemSerial { get; set; }
-        [Required]
+        //[Required]
         public string ProductName { get; set; }
         public int SportName { get; set; }
         public int ItemType { get; set; }

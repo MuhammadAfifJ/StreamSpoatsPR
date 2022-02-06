@@ -21,7 +21,22 @@
             <div class="col-sm-4">
                 <div class="form-group">
                     <label>Product Name:</label>
-                    <input type="text" class="form-control my-input" @bind="Review.ProductName" required placeholder="Product Name">
+                    <div class="form-group">
+                        @if (prodname == null)
+                        {
+                            <p><em>Loading...</em></p>
+                        }
+                        else
+                        {
+                            <select class="form-control" @bind="@ProductName">
+                                @foreach (var n in prodname)
+                                {
+                                    <option value="@n.ProductName">@n.ProductName</option>
+                                }
+                            </select>
+                        }
+                    </div>
+                    @*<input type="text" class="form-control my-input" @bind="Review.ProductName" required placeholder="Product Name">*@
                 </div>
             </div>
             <div class="col-sm-4">
@@ -80,7 +95,20 @@
             <div class="col-sm-3">
                 <div class="form-group">
                     <label>Item Serial:</label>
-                    <input type="text" class="form-control my-input" @bind="Review.ItemSerial" required />
+                    @if (serial == null)
+                    {
+                        <p><em>Loading...</em></p>
+                    }
+                    else
+                    {
+                        <select class="form-control" @bind="@ItemSerial">
+                            @foreach (var n in serial)
+                            {
+                                <option value="@n.ItemSerial">@n.ItemSerial</option>
+                            }
+                        </select>
+                    }
+                    @*<input type="text" class="form-control my-input" @bind="Review.ItemSerial" required />*@
                 </div>
             </div>
             <div class="col-sm-3">
@@ -156,17 +184,24 @@
     int SportName = 0;
     int ItemType = 0;
     int BrandName = 0;
+    string ProductName = "-1";
+    string ItemSerial = "-1";
     private ReviewWriteViewModel Review = new ReviewWriteViewModel();
     private Brand[] BrandList;
     private Sport[] SportList;
+    private Prodname[] prodname;
+    private Serial[] serial;
     private StreamSpoatsPR.Shared.Type[] TypeList;
     private string imageName;
+
     [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
     protected override async Task OnInitializedAsync()
     {
         BrandList = await _client.GetFromJsonAsync<Brand[]>($"{Endpoints.BrandEndpoint}");
         SportList = await _client.GetFromJsonAsync<Sport[]>($"{Endpoints.SportEndpoint}");
         TypeList = await _client.GetFromJsonAsync<StreamSpoatsPR.Shared.Type[]>($"{Endpoints.TypeEndpoint}");
+        prodname = await _client.GetFromJsonAsync<Prodname[]>($"{Endpoints.ProductNameEndpoint}");
+        serial = await _client.GetFromJsonAsync<Serial[]>($"{Endpoints.SerialEndpoint}");
     }
 
 
@@ -195,7 +230,7 @@
                 Purchase purchase = new Purchase();
                 purchase.ReviewId = GetReview.ReviewId;
                 purchase.PurchaseDate = System.DateTime.Now;
-                purchase.ItemSerial = Review.ItemSerial;
+                purchase.ItemSerial = ItemSerial;
                 var purchaseAsJson = JsonSerializer.Serialize(purchase);
                 var purchaseresponse = await _client.PostAsync(Endpoints.PurchaseEndpoint, new StringContent(purchaseAsJson, Encoding.UTF8, "application/json"));
                 var GetPurchase = JsonSerializer.Deserialize<Purchase>(await purchaseresponse.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
@@ -215,12 +250,13 @@
                 }
 
                 Product product = new Product();
-                product.ProductName = Review.ProductName;
-                product.ItemSerial = Review.ItemSerial;
+                product.ProductName = ProductName;
+                product.ItemSerial = ItemSerial;
                 product.SportName = SportName;
                 product.ItemType = ItemType;
                 product.BrandName = BrandName;
                 product.ProductImage = imageName;
+
 
                 //foreach (var file in selectedFiles)
                 //{
@@ -236,6 +272,7 @@
                 var ProductAsJson = JsonSerializer.Serialize(product);
                 var Productresponse = await _client.PostAsync(Endpoints.ProductEndpoint, new StringContent(ProductAsJson, Encoding.UTF8, "application/json"));
                 var GetProduct = JsonSerializer.Deserialize<Purchase>(await Productresponse.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                await Delete(ItemSerial);
                 //await ProductService.InsertAsync(product);
                 _navManager.NavigateTo("/Review/");
                 //await JsRuntime.InvokeVoidAsync("alert", "Review Add!"); // Alert
@@ -300,7 +337,10 @@
         selectedFiles = e.GetMultipleFiles();
         this.StateHasChanged();
     }
-
+    async Task Delete(string serialId)
+    {
+        await _client.GetAsync($"{Endpoints.SerialEndpoint + "/DeleteSerialReview?id=" + serialId}");
+    }
 
     private async Task CreateType()
     {
