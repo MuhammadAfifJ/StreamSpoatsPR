@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>StreamSpoatsPR.Client</AssemblyName>
+    <RootNamespace>StreamSpoatsPR.Client</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\Data\" />
+    <Folder Include="wwwroot\Banner\" />
   </ItemGroup>
 
   <ItemGroup>
