@@ -8,13 +8,6 @@
 <div class="container" style="text-align: center; margin: auto; justify-content: center; align-items: center">
     <h3 class="card-title" style="text-align:center">Sports</h3>
     <br />
-
-
-    <a href="/sport/create" class="btn btn-secondary">
-        <span class="oi oi-plus" style="width:100%;text-align:center;margin:auto;justify-content:center;align-items:center"></span>
-        Create New Sport
-    </a>
-    <br />
     <br />
 
     @if (sport == null)
@@ -28,8 +21,6 @@
                 <tr>
                     <th>ID</th>
                     <th>Sport Name</th>
-                    <th>Actions</th>
-
                 </tr>
             </thead>
             <tbody>
@@ -38,14 +29,6 @@
                     <tr>
                         <td>@n.ID</td>
                         <td>@n.SportName</td>
-                        <td>
-                            <a href="/sport/edit/@n.ID" class="btn btn-warning">
-                                <span class="oi oi-pencil"></span>
-                            </a>
-                            <button class="btn btn-danger" @onclick="@(()=>Delete(n.ID))">
-                                <span class="oi oi-delete"></span>
-                            </button>
-                        </td>
                     </tr>
                 }
             </tbody>
@@ -80,17 +63,6 @@
     public void Dispose()
     {
         JsRuntime.InvokeVoidAsync("DataTableDispose", "#sportTable");
-    }
-
-    async Task Delete(int sportId)
-    {
-        var SportData = sport.First(q => q.ID == sportId);
-        var confirm = await JsRuntime.InvokeAsync<bool>("confirm", $"Do you want to delete {SportData.ID}?");
-        if (confirm)
-        {
-            await Http.DeleteAsync($"{Endpoints.SportEndpoint}/{sportId}");
-            await OnInitializedAsync();
-        }
     }
 
 }
